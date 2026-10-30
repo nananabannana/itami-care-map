@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * デザイントークン
+ * 白ベース＋淡いラベンダー・くすみピンク。文字色はすべて白背景で WCAG AA（4.5:1）以上。
+ */
+@theme {
+  --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "BIZ UDPGothic", "Yu Gothic UI", Meiryo, sans-serif;
+
+  --color-ink: #2b2733;
+  --color-ink-muted: #5e5869;
+  --color-line: #dcd6e4;
+  --color-surface: #ffffff;
+  --color-mist: #faf8fc;
+
+  --color-lavender-50: #f6f3fb;
+  --color-lavender-100: #ece6f6;
+  --color-lavender-200: #ddd3ee;
+  --color-primary: #5b4a8b;
+  --color-primary-strong: #463870;
+
+  --color-blush-50: #fbf3f5;
+  --color-blush-100: #f5e3e8;
+  --color-blush-700: #93405b;
+
+  --color-ev-a: #1d6a53;
+  --color-ev-a-bg: #e6f3ee;
+  --color-ev-b: #2a5786;
+  --color-ev-b-bg: #e7eff8;
+  --color-ev-c: #5b4a8b;
+  --color-ev-c-bg: #f0ecf8;
+  --color-ev-d: #4f4b57;
+  --color-ev-d-bg: #f1f0f3;
+
+  --color-warn: #7a4a00;
+  --color-warn-bg: #fff6e5;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  line-height: 1.75;
+  font-feature-settings: "palt" 0;
+}
+
+:where(a, button, input, select, summary, textarea):focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -4rem;
+  z-index: 50;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+.skip-link:focus {
+  top: 0.75rem;
 }

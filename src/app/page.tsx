@@ -1,69 +1,99 @@
-import Image from "next/image";
+import Link from "next/link";
+import { EvidenceLegend, MethodGrid, PrefectureGrid, ProcedureGrid } from "@/components/EntryGrids";
+import { HeroSearch } from "@/components/HeroSearch";
+import { getRepository } from "@/lib/repository";
 
-export default function Home() {
+function SectionTitle({ id, children, lead }: { id: string; children: React.ReactNode; lead?: string }) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="mb-5">
+      <h2 id={id} className="text-xl font-bold sm:text-2xl">
+        {children}
+      </h2>
+      {lead && <p className="mt-1 text-ink-muted">{lead}</p>}
     </div>
+  );
+}
+
+export default async function Home() {
+  const repo = getRepository();
+  const [citiesByPref, counts] = await Promise.all([repo.listCities(), repo.countByPrefecture()]);
+
+  return (
+    <>
+      <section aria-labelledby="hero-title" className="bg-gradient-to-b from-lavender-50 via-blush-50/60 to-white">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 pb-12 pt-10 sm:pt-14 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+          <div>
+            <h1 id="hero-title" className="text-[1.75rem] font-bold leading-snug tracking-wide sm:text-4xl">
+              婦人科の痛み、
+              <br />
+              不安をひとりで抱えない。
+            </h1>
+            <p className="mt-4 text-base text-ink-muted sm:text-lg">
+              麻酔・鎮痛への対応や、患者の意思を尊重する医療機関を全国から探せます。
+            </p>
+            <ul className="mt-5 space-y-1 text-sm text-ink-muted">
+              <li>・処置ごとに、どの麻酔・鎮痛方法に対応しているかを確認できます</li>
+              <li>・すべての情報に出典と確認日を記載しています</li>
+              <li>・会員登録は不要です</li>
+            </ul>
+          </div>
+          <HeroSearch citiesByPref={citiesByPref} />
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-6xl space-y-16 px-4 pt-12">
+        <section aria-labelledby="area-title">
+          <SectionTitle id="area-title" lead="都道府県を選ぶと、その地域の医療機関一覧に移動します。（）内は掲載数です。">
+            地域から探す
+          </SectionTitle>
+          <PrefectureGrid counts={counts} />
+        </section>
+
+        <section aria-labelledby="procedure-title">
+          <SectionTitle id="procedure-title" lead="受ける予定の処置から、麻酔・鎮痛に対応する医療機関を探せます。">
+            処置から探す
+          </SectionTitle>
+          <ProcedureGrid />
+        </section>
+
+        <section aria-labelledby="method-title">
+          <SectionTitle
+            id="method-title"
+            lead="「麻酔あり」と一括りにせず、処置ごとにどの方法を使うかで探せます。"
+          >
+            麻酔・鎮痛方法から探す
+          </SectionTitle>
+          <MethodGrid />
+          <p className="mt-3 text-sm">
+            <Link href="/guide" className="text-primary underline underline-offset-4">
+              それぞれの方法について知る
+            </Link>
+          </p>
+        </section>
+
+        <section aria-labelledby="trust-title" className="rounded-2xl bg-mist p-5 sm:p-8">
+          <SectionTitle id="trust-title">情報の確かさについて</SectionTitle>
+          <div className="grid gap-8 lg:grid-cols-2">
+            <div className="space-y-3 text-sm">
+              <p>
+                掲載情報は、医療機関の公式サイトや医療機関への直接の問い合わせで確認したものだけです。推測や口コミをもとに「対応している」と表示することはありません。確認できていない項目は「未確認」と表示します。
+              </p>
+              <p>
+                検索結果の並び順は、情報の確認状況だけで決まります。広告料や掲載料で順位が変わることはありません。
+              </p>
+              <p>
+                <Link href="/about" className="text-primary underline underline-offset-4">
+                  掲載方針を詳しく見る
+                </Link>
+              </p>
+            </div>
+            <div>
+              <h3 className="mb-2 text-sm font-semibold">情報の確度の表示</h3>
+              <EvidenceLegend />
+            </div>
+          </div>
+        </section>
+      </div>
+    </>
   );
 }
