@@ -1,6 +1,7 @@
 /**
  * データアクセス層。
- * 環境変数 SUPABASE_URL / SUPABASE_ANON_KEY があれば Supabase、なければデモデータを使う。
+ * 環境変数 SUPABASE_URL と SUPABASE_PUBLISHABLE_KEY があれば Supabase、なければデモデータを使う。
+ * （旧名 SUPABASE_ANON_KEY も読み込む）
  * 画面側はこのインターフェースだけに依存する。
  */
 import { DEMO_FACILITIES } from "@/data/demo";
@@ -53,7 +54,7 @@ let repo: FacilityRepository | null = null;
 export function getRepository(): FacilityRepository {
   if (!repo) {
     const url = process.env.SUPABASE_URL;
-    const key = process.env.SUPABASE_ANON_KEY;
+    const key = process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY;
     repo = url && key ? new SupabaseRepository(url, key) : new DemoRepository(DEMO_FACILITIES);
   }
   return repo;

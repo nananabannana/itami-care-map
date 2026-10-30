@@ -225,6 +225,6 @@ DBで強制するルール（CHECK制約・トリガー）：
 | 件数の取得 | `getPrefectureCounts()`（`use cache` + `cacheLife("minutes")`）。Supabase 接続時はビュー `public_prefecture_counts` から取得。管理画面での更新時は `updateTag("prefecture-counts")` で即時反映（Phase 3） |
 
 ### Supabase との接続
-- 環境変数 `SUPABASE_URL` / `SUPABASE_ANON_KEY` を設定すると `SupabaseRepository` に切り替わる（未設定時はデモデータ）
+- 環境変数 `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` を設定すると `SupabaseRepository` に切り替わる（未設定時はデモデータ）
 - マイグレーション `0002_prefecture_counts.sql`：都道府県別件数ビュー（0件の県も返す）、都道府県・処置・麻酔方法マスタの投入
 - 実データベースへの接続確認は未実施（Supabase プロジェクト作成後に行う）

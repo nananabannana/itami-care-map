@@ -1,6 +1,6 @@
 /**
  * Supabase 実装の FacilityRepository。
- * 環境変数 SUPABASE_URL と SUPABASE_ANON_KEY があるときに使用する（サーバー側のみ）。
+ * 環境変数 SUPABASE_URL と SUPABASE_PUBLISHABLE_KEY があるときに使用する（サーバー側のみ）。
  *
  * 取得は公開済みデータのみ（RLS で担保）。
  * 検索は MVP 段階では公開済み医療機関を一括取得してアプリ側で絞り込む。
@@ -137,8 +137,8 @@ export class SupabaseRepository implements FacilityRepository {
   readonly isDemo = false;
   private readonly db: SupabaseClient;
 
-  constructor(url: string, anonKey: string) {
-    this.db = createClient(url, anonKey, { auth: { persistSession: false } });
+  constructor(url: string, publishableKey: string) {
+    this.db = createClient(url, publishableKey, { auth: { persistSession: false } });
   }
 
   private async fetchAll(): Promise<Facility[]> {
