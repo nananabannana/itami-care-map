@@ -9,9 +9,12 @@ import type {
 } from "./types";
 
 const CONSULTATION_METHODS = new Set(METHODS.filter((m) => m.isConsultationOnly).map((m) => m.slug));
+const NONE_METHODS = new Set(METHODS.filter((m) => m.isNone).map((m) => m.slug));
 
 /** 対応行のティア（1が最優先）。対応を示さない行は null */
 export function tierOfSupport(row: ProcedureSupport): Tier | null {
+  // 「麻酔を使用しない」は痛みへの対応ではないので、順位付けに使わない
+  if (NONE_METHODS.has(row.methodSlug)) return null;
   if (row.supportStatus === "available") {
     if (CONSULTATION_METHODS.has(row.methodSlug)) return 3;
     if (row.evidenceStatus === "A") return 1;

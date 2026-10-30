@@ -64,12 +64,21 @@ export function SiteHeader() {
   );
 }
 
-export function DemoBanner() {
+export function DemoBanner({ isDemo }: { isDemo: boolean }) {
   return (
     <div role="note" className="bg-warn-bg text-warn">
       <p className="mx-auto max-w-6xl px-4 py-2 text-sm">
-        <strong>デモ版です。</strong>
-        掲載している医療機関はすべて架空の「デモデータ」で、実在の医療機関ではありません。
+        {isDemo ? (
+          <>
+            <strong>デモ版です。</strong>
+            掲載している医療機関はすべて架空の「デモデータ」で、実在の医療機関ではありません。
+          </>
+        ) : (
+          <>
+            <strong>公開準備中です。</strong>
+            掲載情報は、公式情報との照合と管理者の確認が済んだものから順に公開しています。
+          </>
+        )}
       </p>
     </div>
   );

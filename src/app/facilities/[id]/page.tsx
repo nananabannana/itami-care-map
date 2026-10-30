@@ -4,14 +4,14 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CareStatusLabel, EvidenceBadge, formatDate, SupportLabel, VerifiedDate } from "@/components/Badges";
 import { CARE_ITEMS, methodBySlug, prefByCode, PROCEDURES, SOURCE_TYPE } from "@/lib/master";
-import { getRepository } from "@/lib/repository";
+import { getFacilityCached, listFacilityIdsCached } from "@/lib/counts";
 import { todayJst } from "@/lib/today";
 import type { ExtraFee, Facility, Source } from "@/lib/types";
 
 type Params = Promise<{ id: string }>;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const f = await getRepository().getById((await params).id);
+  const f = await getFacilityCached((await params).id);
   return { title: f ? f.name : "医療機関が見つかりません" };
 }
 
@@ -57,7 +57,7 @@ function BasicInfo({ f }: { f: Facility }) {
     ],
     ["最寄り駅", f.nearestStations.length ? f.nearestStations.join("・") : "未確認"],
     ["診療時間", f.consultationHours ?? "未確認（受診前に医療機関へご確認ください）"],
-    ["診療科目", f.departments.join("・")],
+    ["診療科目", f.departments.length ? f.departments.join("・") : "未確認"],
     ["種別", f.facilityType === "hospital" ? "病院" : "診療所"],
   ];
   return (
@@ -111,7 +111,7 @@ function SupportSection({ f, today }: { f: Facility; today: string }) {
                     <li key={r.methodSlug} className="px-4 py-3">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-semibold">{methodBySlug(r.methodSlug)?.name}</span>
-                        <SupportLabel status={r.supportStatus} />
+                        <SupportLabel status={r.supportStatus} methodSlug={r.methodSlug} />
                         <EvidenceBadge status={r.evidenceStatus} />
                       </div>
                       <dl className="mt-2 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
@@ -205,6 +205,12 @@ function SourceSection({ f, today }: { f: Facility; today: string }) {
               <div className="flex gap-2">
                 <dt className="shrink-0 text-ink-muted">確認先</dt>
                 <dd>{s.contactedDepartment}</dd>
+              </div>
+            )}
+            {s.documentDate && (
+              <div className="flex gap-2">
+                <dt className="shrink-0 text-ink-muted">資料の日付</dt>
+                <dd>{s.documentDate}</dd>
               </div>
             )}
             <div className="flex gap-2">
@@ -326,12 +332,14 @@ async function FacilityDetail({ f }: { f: Facility }) {
 }
 
 export async function generateStaticParams() {
-  return getRepository().listIds().then((ids) => ids.map((id) => ({ id })));
+  // Cache Components では空配列だとビルドエラーになる。公開済みが0件の間はダミーIDを1つ返す（404になる）
+  const ids = await listFacilityIdsCached();
+  return (ids.length ? ids : ["__none__"]).map((id) => ({ id }));
 }
 
 // 存在確認はストリーミング開始前に行い、存在しないIDには HTTP 404 を返す
 export default async function FacilityPage({ params }: { params: Params }) {
-  const f = await getRepository().getById((await params).id);
+  const f = await getFacilityCached((await params).id);
   if (!f) notFound();
   return (
     <Suspense fallback={<p className="mx-auto max-w-4xl px-4 py-8 text-ink-muted">読み込んでいます…</p>}>

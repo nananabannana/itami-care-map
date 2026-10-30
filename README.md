@@ -18,6 +18,27 @@ npm run build
 `.env.example` を `.env.local` にコピーし、`SUPABASE_URL` と `SUPABASE_PUBLISHABLE_KEY`（`sb_publishable_` で始まる鍵）を設定します。Secret key は使いません。
 `supabase/migrations/` の SQL を順に実行してください。未設定の場合はデモデータで動作します。
 
+## 管理者の設定（公開前レビュー）
+
+1. Supabase の **Authentication → Users → Add user** で管理者のユーザーを作成（メールとパスワード）
+2. SQL Editor で管理者の権限を付ける（メールアドレスは作成したものに置き換え）
+
+   ```sql
+   update auth.users
+   set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role":"admin"}'::jsonb
+   where email = 'admin@example.com';
+   ```
+
+3. `/admin/login` からログインし、`/admin/review` で登録情報を確認・承認する
+
+調査・登録の手順は [docs/RESEARCH.md](docs/RESEARCH.md) を参照。
+
+## データベースの更新
+
+`supabase/migrations/` のSQLを番号順に、Supabase の SQL Editor で実行する。
+調査データは `supabase/seed/` のSQLを実行する（すべて非公開の下書きとして登録される）。
+実行前に `npm run check:sql` でローカル検証できる。
+
 ## 地図データの再生成
 
 ```bash

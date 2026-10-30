@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { EVIDENCE, METHODS, PREFECTURES, PROCEDURES, REGIONS } from "@/lib/master";
+import { EVIDENCE, SEARCHABLE_METHODS, PREFECTURES, PROCEDURES, REGIONS } from "@/lib/master";
 import { BORDER, prefHref, REGION_FILL } from "@/lib/map-scale";
 import type { EvidenceStatus } from "@/lib/types";
 import { EvidenceBadge } from "./Badges";
@@ -64,7 +64,7 @@ export function ProcedureGrid() {
 export function MethodGrid() {
   return (
     <ul className="flex flex-wrap gap-2">
-      {METHODS.map((m) => (
+      {SEARCHABLE_METHODS.map((m) => (
         <li key={m.slug}>
           <Link
             href={`/search?method=${m.slug}`}
