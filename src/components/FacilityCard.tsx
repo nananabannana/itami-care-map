@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { careLabel, methodBySlug, procedureBySlug, SOURCE_TYPE } from "@/lib/master";
 import type { CareItemKey, SearchFilters, SearchResult } from "@/lib/types";
-import { CareStatusLabel, EvidenceBadge, SupportLabel, VerifiedDate } from "./Badges";
+import { CareStatusLabel, EvidenceBadge, SupportLabel, VerifiedDate, VerifySummary } from "./Badges";
 
 const CARD_CARE: CareItemKey[] = ["stop_on_request", "pain_management_consultation", "female_doctor_available"];
 const MAX_ROWS = 3;
@@ -26,11 +26,12 @@ export function FacilityCard({
     <article className="rounded-xl border border-line bg-white p-4 shadow-[0_1px_2px_rgba(43,39,51,0.04)] sm:p-5">
       <header className="space-y-1">
         <div className="flex flex-wrap items-center gap-2">
+          <VerifySummary tier={tier} />
           {f.isDemo && (
             <span className="rounded bg-warn-bg px-1.5 text-xs font-semibold text-warn">デモデータ</span>
           )}
           <span className="text-xs text-ink-muted">{f.facilityType === "hospital" ? "病院" : "診療所"}</span>
-          <span className="text-xs text-ink-muted">{f.departments.join("・")}</span>
+          {f.departments.length > 0 && <span className="text-xs text-ink-muted">{f.departments.join("・")}</span>}
         </div>
         <h3 className="text-lg font-bold leading-snug">
           <Link href={`/facilities/${f.id}`} className="text-primary underline-offset-4 hover:underline">
@@ -57,7 +58,7 @@ export function FacilityCard({
                   ／
                 </span>
                 <span>{methodBySlug(r.methodSlug)?.name}</span>
-                <SupportLabel status={r.supportStatus} />
+                <SupportLabel status={r.supportStatus} methodSlug={r.methodSlug} />
                 <EvidenceBadge status={r.evidenceStatus} />
               </li>
             ))}

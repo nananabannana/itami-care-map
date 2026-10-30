@@ -93,3 +93,17 @@ describe("クエリ変換", () => {
     expect(parseFilters({ pref: "99" }).pref).toBeUndefined();
   });
 });
+
+describe("麻酔を使用しない", () => {
+  it("「麻酔なし」の行は痛みへの対応として順位付けに使わない", () => {
+    const base = DEMO_FACILITIES[0];
+    const f: Facility = {
+      ...base,
+      id: "x-none",
+      support: [{ procedureSlug: "hysteroscopy", methodSlug: "none", supportStatus: "available", extraFee: "unknown", evidenceStatus: "A", sourceId: "aoba-s1", verifiedAt: "2026-10-01" }],
+    };
+    const r = searchFacilities([f], { procedure: "hysteroscopy" });
+    expect(r[0].tier).toBe(4);
+    expect(validateFacility(f)).toEqual([]);
+  });
+});

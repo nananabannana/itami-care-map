@@ -100,6 +100,13 @@ export const PROCEDURES: Procedure[] = [
       "細いカメラを子宮の中に入れて、内部の様子を直接観察する検査です。",
   },
   {
+    slug: "hysteroscopic-surgery",
+    name: "子宮鏡下手術",
+    category: "手術",
+    description:
+      "子宮鏡を使って、子宮内膜ポリープや粘膜下筋腫などを切除する手術です。診断目的の子宮鏡検査とは麻酔の方法が異なることがあります。",
+  },
+  {
     slug: "iud",
     name: "子宮内避妊具（IUD）挿入・抜去",
     category: "避妊",
@@ -183,6 +190,13 @@ export const METHODS: AnesthesiaMethod[] = [
     isConsultationOnly: false,
   },
   {
+    slug: "spinal",
+    name: "脊髄くも膜下麻酔（腰椎麻酔）",
+    description:
+      "背中から細い針で麻酔薬を入れ、下半身の感覚をなくす方法です。「下半身麻酔」「腰椎麻酔」とも呼ばれます。",
+    isConsultationOnly: false,
+  },
+  {
     slug: "general",
     name: "全身麻酔",
     description: "意識がない状態で処置や手術を受ける方法です。呼吸の管理を伴うことがあります。",
@@ -208,7 +222,18 @@ export const METHODS: AnesthesiaMethod[] = [
       "決まった方法ではなく、希望や体の状態に合わせて麻酔・鎮痛を相談できることを示します。",
     isConsultationOnly: true,
   },
+  {
+    slug: "none",
+    name: "麻酔を使用しない",
+    description:
+      "通常は麻酔を使わずに行うことが確認できたものです。痛みへの対応がないという意味ではありません。",
+    isConsultationOnly: false,
+    isNone: true,
+  },
 ];
+
+/** 検索・入口に出す麻酔方法（「麻酔を使用しない」は探す条件にしない） */
+export const SEARCHABLE_METHODS = METHODS.filter((m) => !m.isNone);
 
 export const CARE_ITEMS: { key: CareItemKey; label: string; filterLabel?: string }[] = [
   { key: "explanation_before_procedure", label: "処置前の説明" },

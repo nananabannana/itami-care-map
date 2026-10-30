@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CARE_ITEMS, METHODS, PROCEDURES } from "@/lib/master";
+import { CARE_ITEMS, SEARCHABLE_METHODS, PROCEDURES } from "@/lib/master";
 import type { SearchFilters } from "@/lib/types";
 import { PrefCitySelect } from "./PrefCitySelect";
 
@@ -55,7 +55,7 @@ export function FilterPanel({
         </label>
         <select id="f-method" name="method" defaultValue={filters.method ?? ""} className={selectClass}>
           <option value="">指定しない</option>
-          {METHODS.map((m) => (
+          {SEARCHABLE_METHODS.map((m) => (
             <option key={m.slug} value={m.slug}>
               {m.name}
             </option>

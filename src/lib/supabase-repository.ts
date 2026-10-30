@@ -35,6 +35,8 @@ export interface FacilityRow {
   nearest_stations: string[];
   consultation_hours: string | null;
   is_demo: boolean;
+  city: string | null;
+  review_note?: string | null;
   municipalities: { name: string } | null;
   sources: {
     id: string;
@@ -43,6 +45,9 @@ export interface FacilityRow {
     source_title: string;
     evidence_excerpt: string | null;
     contacted_department: string | null;
+    document_date: string | null;
+    notes: string | null;
+    is_basic_info: boolean;
     checked_at: string;
   }[];
   facility_procedure_support: {
@@ -70,9 +75,10 @@ export interface FacilityRow {
 
 export const FACILITY_SELECT = `
   slug, name, prefecture_code, address, phone, website_url, latitude, longitude,
-  facility_type, departments, nearest_stations, consultation_hours, is_demo,
+  facility_type, departments, nearest_stations, consultation_hours, is_demo, city,
   municipalities ( name ),
-  sources ( id, source_type, source_url, source_title, evidence_excerpt, contacted_department, checked_at ),
+  sources ( id, source_type, source_url, source_title, evidence_excerpt, contacted_department,
+    document_date, notes, is_basic_info, checked_at ),
   facility_procedure_support ( support_status, conditions, schedule_note, extra_fee, extra_fee_note, notes,
     evidence_status, source_id, verified_at, procedures ( slug ), anesthesia_methods ( slug ) ),
   facility_care_items ( care_item, status, note, evidence_status, source_id, verified_at )
@@ -86,7 +92,7 @@ export function rowToFacility(r: FacilityRow): Facility {
     id: r.slug,
     name: r.name,
     prefectureCode: r.prefecture_code,
-    city: r.municipalities?.name ?? "",
+    city: r.city ?? r.municipalities?.name ?? "",
     address: r.address,
     phone: u(r.phone),
     websiteUrl: u(r.website_url),
@@ -97,7 +103,8 @@ export function rowToFacility(r: FacilityRow): Facility {
     nearestStations: r.nearest_stations ?? [],
     consultationHours: u(r.consultation_hours),
     isDemo: r.is_demo,
-    basicInfoSourceId: r.sources.find((s) => s.source_type === "public_registry")?.id,
+    reviewNote: u(r.review_note ?? null),
+    basicInfoSourceId: (r.sources.find((s) => s.is_basic_info) ?? r.sources.find((s) => s.source_type === "public_registry"))?.id,
     sources: r.sources.map((s) => ({
       id: s.id,
       sourceType: s.source_type,
@@ -105,6 +112,8 @@ export function rowToFacility(r: FacilityRow): Facility {
       sourceTitle: s.source_title,
       evidenceExcerpt: u(s.evidence_excerpt),
       contactedDepartment: u(s.contacted_department),
+      documentDate: u(s.document_date),
+      notes: u(s.notes),
       checkedAt: s.checked_at,
     })),
     support: r.facility_procedure_support

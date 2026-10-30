@@ -228,3 +228,15 @@ DBで強制するルール（CHECK制約・トリガー）：
 - 環境変数 `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` を設定すると `SupabaseRepository` に切り替わる（未設定時はデモデータ）
 - マイグレーション `0002_prefecture_counts.sql`：都道府県別件数ビュー（0件の県も返す）、都道府県・処置・麻酔方法マスタの投入
 - 実データベースへの接続確認は未実施（Supabase プロジェクト作成後に行う）
+
+---
+
+## 9. 実データの登録と公開前レビュー（2026-10-30 追加）
+
+- 実在医療機関は Supabase にのみ登録する（`is_demo = false`）。架空のデモデータはアプリ内（`src/data/demo.ts`）にのみ置き、DBには入れない
+- 登録時はすべて `review_status = 'draft'`、`is_published = false`。DB制約 `published_requires_approval` により、承認なしでは公開できない
+- 承認・差し戻しは DB 関数 `approve_facility` / `set_facility_draft` で行い、施設と対応情報をまとめて切り替え、`audit_logs` に記録する。関数内で管理者か確認する
+- 管理者は Supabase Auth のユーザーで、`app_metadata.role = "admin"`。画面（`/admin/review`）と RLS の両方で確認する
+- 処置に「子宮鏡下手術」、麻酔方法に「脊髄くも膜下麻酔（腰椎麻酔）」「麻酔を使用しない」を追加。「麻酔を使用しない」は検索の順位付けに使わない
+- 麻酔対応が未確認の施設は `research_candidates` に入れ、公開しない
+- 手順の詳細は [RESEARCH.md](RESEARCH.md)

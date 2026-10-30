@@ -16,10 +16,11 @@ const row: FacilityRow = {
   nearest_stations: [],
   consultation_hours: null,
   is_demo: true,
+  city: null,
   municipalities: { name: "名古屋市中区" },
   sources: [
-    { id: "s1", source_type: "official_site", source_url: "https://example.com/demo/row/a", source_title: "麻酔について", evidence_excerpt: null, contacted_department: null, checked_at: "2026-10-01" },
-    { id: "s2", source_type: "public_registry", source_url: "https://www.iryou.teikyouseido.mhlw.go.jp/", source_title: "ナビイ", evidence_excerpt: null, contacted_department: null, checked_at: "2026-10-01" },
+    { id: "s1", source_type: "official_site", source_url: "https://example.com/demo/row/a", source_title: "麻酔について", evidence_excerpt: null, contacted_department: null, document_date: "2026年7月掲載", notes: null, is_basic_info: false, checked_at: "2026-10-01" },
+    { id: "s2", source_type: "public_registry", source_url: "https://www.iryou.teikyouseido.mhlw.go.jp/", source_title: "ナビイ", evidence_excerpt: null, contacted_department: null, document_date: null, notes: null, is_basic_info: false, checked_at: "2026-10-01" },
   ],
   facility_procedure_support: [
     { support_status: "available", conditions: null, schedule_note: null, extra_fee: "unknown", extra_fee_note: null, notes: null, evidence_status: "A", source_id: "s1", verified_at: "2026-10-01", procedures: { slug: "abortion" }, anesthesia_methods: { slug: "iv-anesthesia" } },
@@ -36,6 +37,8 @@ describe("Supabaseの行 → Facility", () => {
     expect(f.city).toBe("名古屋市中区");
     expect(f.phone).toBeUndefined();
     expect(f.basicInfoSourceId).toBe("s2");
+    expect(f.sources[0].documentDate).toBe("2026年7月掲載");
+    expect(rowToFacility({ ...row, city: "江東区" }).city).toBe("江東区");
     expect(f.support[0]).toMatchObject({ procedureSlug: "abortion", methodSlug: "iv-anesthesia", evidenceStatus: "A" });
     expect(validateFacility(f)).toEqual([]);
   });

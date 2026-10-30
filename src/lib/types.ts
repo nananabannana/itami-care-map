@@ -39,6 +39,8 @@ export interface AnesthesiaMethod {
   name: string;
   description: string;
   isConsultationOnly: boolean;
+  /** 「麻酔を使用しない」。痛みへの対応としては数えない */
+  isNone?: boolean;
 }
 
 export interface Source {
@@ -48,6 +50,9 @@ export interface Source {
   sourceTitle: string;
   evidenceExcerpt?: string;
   contactedDepartment?: string;
+  /** 資料に書かれた作成日・掲載日（例：「2024年1月作成」「記載なし」） */
+  documentDate?: string;
+  notes?: string;
   checkedAt: string; // YYYY-MM-DD
 }
 
@@ -89,6 +94,8 @@ export interface Facility {
   nearestStations: string[];
   consultationHours?: string;
   isDemo: boolean;
+  /** 管理者向けの審査メモ（公開画面では表示しない） */
+  reviewNote?: string;
   /** 基本情報の確度（D：公的情報などで一般的な診療情報のみ確認） */
   basicInfoSourceId?: string;
   support: ProcedureSupport[];

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DemoBanner, SiteFooter, SiteHeader } from "@/components/SiteChrome";
+import { getRepository } from "@/lib/repository";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="ja" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
         <SiteHeader />
-        <DemoBanner />
+        <DemoBanner isDemo={getRepository().isDemo} />
         <main id="main" className="flex-1">
           {children}
         </main>
