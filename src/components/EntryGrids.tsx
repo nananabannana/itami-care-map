@@ -1,31 +1,35 @@
 import Link from "next/link";
 import { EVIDENCE, METHODS, PREFECTURES, PROCEDURES, REGIONS } from "@/lib/master";
+import { BORDER, prefHref, REGION_FILL } from "@/lib/map-scale";
 import type { EvidenceStatus } from "@/lib/types";
 import { EvidenceBadge } from "./Badges";
 
+/** 地域別の都道府県一覧。地図と同じURL（prefHref）に遷移する。0件の都道府県も検索できる */
 export function PrefectureGrid({ counts }: { counts: Record<number, number> }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {REGIONS.map((r) => (
         <section key={r.key} aria-labelledby={`region-${r.key}`} className="rounded-xl border border-line bg-white p-4">
-          <h3 id={`region-${r.key}`} className="text-sm font-bold text-primary">
+          <h3 id={`region-${r.key}`} className="flex items-center gap-2 text-sm font-bold text-ink">
+            <span aria-hidden="true" className="inline-block h-3 w-3 rounded-sm border" style={{ background: REGION_FILL[r.key], borderColor: BORDER }} />
             {r.name}
           </h3>
-          <ul className="mt-2 flex flex-wrap gap-2">
+          <ul className="mt-3 grid grid-cols-2 gap-2">
             {PREFECTURES.filter((p) => p.region === r.key).map((p) => {
               const n = counts[p.code] ?? 0;
               return (
                 <li key={p.code}>
                   <Link
-                    href={`/search?pref=${p.code}`}
-                    className={`inline-flex min-h-10 items-center rounded-full border px-3 text-sm ${
+                    href={prefHref(p.code)}
+                    aria-label={`${p.name}（掲載${n}件）`}
+                    className={`flex min-h-11 items-center justify-between gap-2 rounded-lg border px-3 text-sm ${
                       n > 0
-                        ? "border-lavender-200 bg-lavender-50 text-ink hover:bg-lavender-100"
-                        : "border-line text-ink-muted hover:bg-mist"
+                        ? "border-lavender-200 bg-lavender-50 hover:bg-lavender-100"
+                        : "border-line bg-white hover:bg-mist"
                     }`}
                   >
-                    {p.name}
-                    {n > 0 && <span className="ml-1 text-xs text-ink-muted">（{n}）</span>}
+                    <span className="font-medium text-ink">{p.name}</span>
+                    <span className={`text-xs tabular-nums ${n > 0 ? "font-bold text-primary" : "text-ink-muted"}`}>{n}件</span>
                   </Link>
                 </li>
               );

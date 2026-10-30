@@ -2,7 +2,7 @@
 
 /*
  * デザイントークン
- * 白ベース＋淡いラベンダー・くすみピンク。文字色はすべて白背景で WCAG AA（4.5:1）以上。
+ * アイボリー背景＋白いカード、淡いラベンダー・くすみピンク。文字色はすべて白背景で WCAG AA（4.5:1）以上。
  */
 @theme {
   --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "BIZ UDPGothic", "Yu Gothic UI", Meiryo, sans-serif;
@@ -11,6 +11,7 @@
   --color-ink-muted: #5e5869;
   --color-line: #dcd6e4;
   --color-surface: #ffffff;
+  --color-ivory: #fbf8f1;
   --color-mist: #faf8fc;
 
   --color-lavender-50: #f6f3fb;
@@ -42,7 +43,7 @@ html {
 }
 
 body {
-  background: var(--color-surface);
+  background: var(--color-ivory);
   color: var(--color-ink);
   font-family: var(--font-sans);
   line-height: 1.75;
