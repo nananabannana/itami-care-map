@@ -15,7 +15,7 @@ npm run build
 
 ## Supabase に接続する
 
-`.env.example` を `.env.local` にコピーし、`SUPABASE_URL` と `SUPABASE_ANON_KEY` を設定します。
+`.env.example` を `.env.local` にコピーし、`SUPABASE_URL` と `SUPABASE_PUBLISHABLE_KEY`（`sb_publishable_` で始まる鍵）を設定します。Secret key は使いません。
 `supabase/migrations/` の SQL を順に実行してください。未設定の場合はデモデータで動作します。
 
 ## 地図データの再生成
