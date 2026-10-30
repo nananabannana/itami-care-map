@@ -13,6 +13,19 @@ npm test        # 検索・並び順・データ整合性のテスト
 npm run build
 ```
 
+## Supabase に接続する
+
+`.env.example` を `.env.local` にコピーし、`SUPABASE_URL` と `SUPABASE_ANON_KEY` を設定します。
+`supabase/migrations/` の SQL を順に実行してください。未設定の場合はデモデータで動作します。
+
+## 地図データの再生成
+
+```bash
+node scripts/build-japan-map.mjs   # src/data/japan-map.ts を生成
+```
+
+地図：地球地図日本（国土地理院）をもとに jpn-atlas（BSD-3-Clause）を加工して作成。
+
 ## 構成
 
 - `docs/DESIGN.md` … 設計書（ページ構成、DB設計、コンポーネント、工程、課題、出典管理）

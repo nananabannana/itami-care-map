@@ -1,11 +1,11 @@
 /**
  * データアクセス層。
- * MVPはデモデータ実装のみ。Phase 3 で Supabase 実装を追加し、
- * 環境変数（NEXT_PUBLIC_SUPABASE_URL 等）の有無で切り替える。
+ * 環境変数 SUPABASE_URL / SUPABASE_ANON_KEY があれば Supabase、なければデモデータを使う。
  * 画面側はこのインターフェースだけに依存する。
  */
 import { DEMO_FACILITIES } from "@/data/demo";
 import { searchFacilities } from "./search";
+import { SupabaseRepository } from "./supabase-repository";
 import type { Facility, SearchFilters, SearchResult } from "./types";
 
 export interface FacilityRepository {
@@ -51,6 +51,10 @@ class DemoRepository implements FacilityRepository {
 let repo: FacilityRepository | null = null;
 
 export function getRepository(): FacilityRepository {
-  repo ??= new DemoRepository(DEMO_FACILITIES);
+  if (!repo) {
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_ANON_KEY;
+    repo = url && key ? new SupabaseRepository(url, key) : new DemoRepository(DEMO_FACILITIES);
+  }
   return repo;
 }

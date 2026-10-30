@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { PrefectureGrid } from "@/components/EntryGrids";
-import { getRepository } from "@/lib/repository";
+import { getPrefectureCounts } from "@/lib/counts";
 
 export const metadata: Metadata = { title: "地域から探す" };
 
 export default async function AreaPage() {
-  const counts = await getRepository().countByPrefecture();
+  const counts = await getPrefectureCounts();
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="text-2xl font-bold">地域から探す</h1>
