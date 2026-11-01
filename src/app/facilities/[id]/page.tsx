@@ -100,6 +100,23 @@ function SupportSection({ f, today }: { f: Facility; today: string }) {
           return (
             <li key={p.slug} className="rounded-xl border border-line bg-white">
               <h3 className="rounded-t-xl bg-mist px-4 py-2 font-semibold">{p.name}</h3>
+              {p.slug === "labor" && (f.laborAnalgesiaListings?.length ?? 0) > 0 && (
+                <div className="border-b border-line px-4 py-3 text-sm">
+                  {f.laborAnalgesiaListings!.map((l) => (
+                    <p key={l.jalaUrl}>
+                      <span className="mr-2 inline-block rounded bg-ev-c-bg px-2 py-0.5 text-xs font-semibold text-ev-c">JALA掲載</span>
+                      {l.note}（
+                      <a href={l.jalaUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">
+                        JALAの施設ページ<span className="sr-only">（新しいタブで開きます）</span>
+                      </a>
+                      ／取得日 {formatDate(l.fetchedAt)}）
+                    </p>
+                  ))}
+                  <p className="mt-1 text-xs text-ink-muted">
+                    無痛分娩（分娩時の麻酔）に関する情報です。ほかの婦人科の処置で麻酔に対応していることを示すものではありません。
+                  </p>
+                </div>
+              )}
               {rows.length === 0 ? (
                 <p className="px-4 py-3 text-sm text-ink-muted">
                   <SupportLabel status="unknown" />

@@ -7,6 +7,7 @@ import { listForReview, listResearchCandidates, type ReviewItem, type ReviewStat
 import { methodBySlug, prefByCode, procedureBySlug, SOURCE_TYPE } from "@/lib/master";
 import { getAdminSession, isSupabaseConfigured } from "@/lib/supabase-server";
 import { todayJst } from "@/lib/today";
+import { AdminNav } from "../AdminNav";
 import { signOut } from "../actions";
 import { ReviewActions } from "./ReviewActions";
 
@@ -241,9 +242,10 @@ export default function ReviewPage({ searchParams }: { searchParams: SP }) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="mb-2 text-2xl font-bold">公開前レビュー</h1>
-      <p className="mb-6 text-sm text-ink-muted">
+      <p className="mb-4 text-sm text-ink-muted">
         登録された医療機関情報を出典と照合し、承認したものだけを公開します。承認・差し戻しは監査ログに記録されます。
       </p>
+      <AdminNav current="/admin/review" />
       <Suspense fallback={<p className="text-ink-muted">読み込んでいます…</p>}>
         <ReviewContent searchParams={searchParams} />
       </Suspense>

@@ -62,3 +62,44 @@ await db.exec("select set_facility_draft('hamada-hospital', 'draft', 'テスト�
 console.log("draft   ->", await q("select review_status, is_published from facilities where slug='hamada-hospital'"));
 console.log("counts view (published only):", (await q("select sum(facility_count)::int n from public_prefecture_counts"))[0].n);
 console.log("iwate review_due:", await q("select review_due_at::text from facility_procedure_support s join facilities f on f.id=s.facility_id where f.slug='iwate-medical-university-hospital'"));
+
+// ---- 0004：データ拡充 ----
+const ex = async (label, sql, shouldFail) => {
+  try { const r = sql.trim().replace(/;$/, "").includes(";") ? (await db.exec(sql)).at(-1) : await db.query(sql); if (shouldFail) { console.log("NG  ", label, "（失敗するはずが成功）"); process.exitCode = 1; } else console.log("OK  ", label); return r.rows; }
+  catch (e) { if (shouldFail) console.log("OK  ", label, "→ 拒否:", e.message.slice(0, 60)); else { console.log("FAIL", label, e.message); process.exitCode = 1; } }
+};
+// 既存の11施設は承認できる（麻酔の根拠がある）
+for (const r of await q("select slug from facilities order by slug")) await ex(`承認可：${r.slug}`, `select approve_facility('${r.slug}')`);
+await ex("候補を登録", `insert into listing_candidates (id, navii_key, name, facility_type, prefecture_code, address, data_source, data_date)
+  values ('11111111-1111-1111-1111-111111111111', 'clinic:0000000001', 'テスト婦人科クリニック', 'clinic', 23, '愛知県名古屋市中区栄1-1-1', 'テスト', '2026-06-01')`);
+await ex("未掲載可能の候補は昇格できない", "select promote_candidates(array['11111111-1111-1111-1111-111111111111'::uuid])", true);
+await ex("掲載可能にする", "update listing_candidates set status='publishable'");
+await ex("根拠なしの昇格は拒否", "select promote_candidates(array['11111111-1111-1111-1111-111111111111'::uuid])", true);
+await ex("確度Aなのに公式URLなしは拒否", `insert into candidate_evidence (candidate_id, procedure_id, anesthesia_method_id, support_status, evidence_status, verification_method, evidence_excerpt, verified_at)
+  values ('11111111-1111-1111-1111-111111111111', (select id from procedures where slug='iud'), (select id from anesthesia_methods where slug='local'), 'available', 'A', 'official_site', '原文', '2026-11-01')`, true);
+await ex("確度Dで実施は拒否", `insert into candidate_evidence (candidate_id, procedure_id, anesthesia_method_id, support_status, evidence_status, verification_method, source_url, evidence_excerpt, verified_at)
+  values ('11111111-1111-1111-1111-111111111111', (select id from procedures where slug='iud'), (select id from anesthesia_methods where slug='local'), 'available', 'D', 'official_site', 'https://example.com', '原文', '2026-11-01')`, true);
+await ex("根拠を登録", `insert into candidate_evidence (candidate_id, procedure_id, anesthesia_method_id, support_status, evidence_status, verification_method, source_url, source_title, evidence_excerpt, verified_at)
+  values ('11111111-1111-1111-1111-111111111111', (select id from procedures where slug='iud'), (select id from anesthesia_methods where slug='local'), 'available', 'A', 'official_site', 'https://example.com/iud', 'IUDについて', '「局所麻酔を使用します」', '2026-11-01')`);
+const slugs = await ex("昇格", "select promote_candidates(array['11111111-1111-1111-1111-111111111111'::uuid]) as s");
+console.log("     →", slugs?.[0]?.s, JSON.stringify(await q("select review_status, is_published, navii_key from facilities where navii_key='clinic:0000000001'")),
+  "support:", (await q("select count(*)::int n from facility_procedure_support s join facilities f on f.id=s.facility_id where f.navii_key='clinic:0000000001'"))[0].n);
+await ex("二重昇格は拒否", "select promote_candidates(array['11111111-1111-1111-1111-111111111111'::uuid])", true);
+await ex("21件の昇格は拒否", `select promote_candidates((select array_agg(gen_random_uuid()) from generate_series(1,21)))`, true);
+await ex("昇格した施設を承認", "select approve_facility('navii-clinic-0000000001')");
+// 取り消し
+await ex("麻酔の根拠がない施設", `insert into facilities (slug, name, prefecture_code, address, facility_type) values ('no-evidence', '根拠なし病院', 23, '愛知県', 'hospital')`);
+await ex("麻酔の根拠がない施設は承認不可", "select approve_facility('no-evidence')", true);
+await ex("取り込み記録", `insert into import_batches (id, source, label) values ('22222222-2222-2222-2222-222222222222', 'navii', 'テスト')`);
+await ex("新規候補（取り込み）", `insert into listing_candidates (id, navii_key, name, facility_type, prefecture_code, address, data_source, first_batch_id, last_batch_id)
+  values ('33333333-3333-3333-3333-333333333333', 'clinic:0000000002', '取消テスト', 'clinic', 13, '東京都港区1-1', 'テスト', '22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222');
+  insert into import_batch_changes (batch_id, table_name, record_id, action) values ('22222222-2222-2222-2222-222222222222', 'listing_candidates', '33333333-3333-3333-3333-333333333333', 'insert');
+  insert into import_batch_changes (batch_id, table_name, record_id, action, before)
+    select '22222222-2222-2222-2222-222222222222', 'listing_candidates', id, 'update', to_jsonb(c) from listing_candidates c where id = '11111111-1111-1111-1111-111111111111';
+  update listing_candidates set address = '変更後の住所' where id = '11111111-1111-1111-1111-111111111111';`);
+console.log("     revert →", JSON.stringify((await ex("取り込みの取り消し", "select revert_import_batch('22222222-2222-2222-2222-222222222222') as r"))?.[0]?.r),
+  JSON.stringify(await q("select address from listing_candidates where id='11111111-1111-1111-1111-111111111111'")));
+await ex("二重取り消しは拒否", "select revert_import_batch('22222222-2222-2222-2222-222222222222')", true);
+// 非管理者
+await db.exec(`update auth._claims set claims = '{}'`);
+await ex("非管理者は昇格不可", "select promote_candidates(array['11111111-1111-1111-1111-111111111111'::uuid])", true);

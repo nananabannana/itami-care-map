@@ -172,7 +172,24 @@ export class SupabaseRepository implements FacilityRepository {
       .eq("slug", id)
       .maybeSingle();
     if (error) throw new Error(`医療機関の取得に失敗しました: ${error.message}`);
-    return data ? rowToFacility(data as unknown as FacilityRow) : null;
+    if (!data) return null;
+    const facility = rowToFacility(data as unknown as FacilityRow);
+    facility.laborAnalgesiaListings = await this.laborListings(id);
+    return facility;
+  }
+
+  /** JALA の掲載情報（0004 未実行の環境でもページが壊れないよう、失敗時は空にする） */
+  private async laborListings(slug: string) {
+    try {
+      const { data, error } = await this.db
+        .from("jala_facilities")
+        .select("jala_url, labor_analgesia_note, fetched_at, facilities!jala_facilities_matched_facility_id_fkey!inner(slug)")
+        .eq("facilities.slug", slug);
+      if (error) return [];
+      return (data ?? []).map((r) => ({ jalaUrl: r.jala_url as string, note: r.labor_analgesia_note as string, fetchedAt: r.fetched_at as string }));
+    } catch {
+      return [];
+    }
   }
 
   async listIds() {
