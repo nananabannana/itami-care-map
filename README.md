@@ -33,6 +33,8 @@ npm run build
 
 調査・登録の手順は [docs/RESEARCH.md](docs/RESEARCH.md) を参照。
 
+管理画面のメニュー：公開前レビュー／掲載候補／ナビイ取り込み／JALA取り込み／取り込み履歴
+
 ## データベースの更新
 
 `supabase/migrations/` のSQLを番号順に、Supabase の SQL Editor で実行する。

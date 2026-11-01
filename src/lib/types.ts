@@ -101,6 +101,8 @@ export interface Facility {
   support: ProcedureSupport[];
   care: CareItem[];
   sources: Source[];
+  /** JALA（無痛分娩）の掲載情報。分娩の欄にだけ表示し、婦人科処置の麻酔対応には使わない */
+  laborAnalgesiaListings?: { jalaUrl: string; note: string; fetchedAt: string }[];
 }
 
 export interface SearchFilters {
